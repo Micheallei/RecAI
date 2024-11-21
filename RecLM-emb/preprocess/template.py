@@ -309,3 +309,10 @@ Please adhere to the following guidelines:
 4. The query should be under {num_words} words.
 5. The query is {clarity} and requires {difficulty} level education to comprehend.
 '''
+
+rewrite_template = '''
+Based on the given game properties, please rewrite the information into natural language format to facilitate the encoding of the text embedding model as much as possible.\n\n
+Here is the game information: {target_info}\n\n
+Please give your rewritten content in the following format: {rewrite}\n\n
+The rewritten content should be under 512 tokens. Include all the given information in your rewritten content and keep the order in which game information is given when rewriting. Output only the rewritten content, without any other information.
+'''
