@@ -101,7 +101,7 @@ def run(args, client, tokenizer):
                 messages=[
                     {"role": "system",
                     "content": "You are a helpful assistant. \n"},
-                    {"role": "user", "content": rewrite_template.format(target_info=item_text, rewrite='{"rewrite_text": "xxxxx"}')},
+                    {"role": "user", "content": rewrite_template.format(target_info=item_text)},
                 ],
                 max_tokens=512,
                 temperature=args.temperature,
@@ -109,7 +109,7 @@ def run(args, client, tokenizer):
             )
             tokens = response.usage
             response_text = response.choices[0].message.content
-            rewrite_text.append(json.loads(response_text, strict=False)['rewrite_text'])
+            rewrite_text.append(response_text)
             raw_text.append(item_text)
             input_token_num += int(tokens.prompt_tokens)
             output_token_num += int(tokens.completion_tokens)
