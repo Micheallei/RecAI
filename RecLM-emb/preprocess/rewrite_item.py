@@ -25,7 +25,7 @@ def parse_args():
         "--model_name_or_path", type=str, default='', help=""
     )
     parser.add_argument(
-        "--temperature", type=float, default=0.1, help=""
+        "--temperature", type=float, default=0.7, help=""
     )
     parser.add_argument(
         "--top_p", type=float, default=0.95, help=""
@@ -93,34 +93,38 @@ def run(args, client, tokenizer):
             raw_text.append(item_text)
             rewrite_text.append(item_text)
             continue
-        try:
-            if args.model_name_or_path.startswith("gpt"):
-                time.sleep(0.3)
-            response = client.chat.completions.create(
-                model=args.model_name_or_path,
-                messages=[
-                    {"role": "system",
-                    "content": "You are a helpful assistant. \n"},
-                    {"role": "user", "content": rewrite_template.format(target_info=item_text)},
-                ],
-                max_tokens=512,
-                temperature=args.temperature,
-                top_p=args.top_p,
-            )
-            tokens = response.usage
-            response_text = response.choices[0].message.content
-            rewrite_text.append(response_text)
-            raw_text.append(item_text)
-            input_token_num += int(tokens.prompt_tokens)
-            output_token_num += int(tokens.completion_tokens)
-        except KeyboardInterrupt:
-            print('KeyboardInterrupt')
-            print(f'i: {i}')
-            return rewrite_text, raw_text, input_token_num, output_token_num
-        except Exception as e:
-            print(f'error: {e}')
-            print(f'i: {i}')
-            return rewrite_text, raw_text, input_token_num, output_token_num
+        while True:
+            try:
+                if args.model_name_or_path.startswith("gpt"):
+                    time.sleep(0.3)
+                response = client.chat.completions.create(
+                    model=args.model_name_or_path,
+                    messages=[
+                        {"role": "system",
+                        "content": "You are a helpful assistant. \n"},
+                        {"role": "user", "content": rewrite_template.format(target_info=item_text)},
+                    ],
+                    max_tokens=600,
+                    temperature=args.temperature,
+                    top_p=args.top_p,
+                )
+                tokens = response.usage
+                response_text = response.choices[0].message.content
+                input_token_num += int(tokens.prompt_tokens)
+                output_token_num += int(tokens.completion_tokens)
+                if response_text.lower().startswith('title'):
+                    continue
+                rewrite_text.append(response_text)
+                raw_text.append(item_text)
+                break
+            except KeyboardInterrupt:
+                print('KeyboardInterrupt')
+                print(f'i: {i}')
+                return rewrite_text, raw_text, input_token_num, output_token_num
+            except Exception as e:
+                print(f'error: {e}')
+                print(f'i: {i}')
+                return rewrite_text, raw_text, input_token_num, output_token_num
     return rewrite_text, raw_text, input_token_num, output_token_num
 
 
