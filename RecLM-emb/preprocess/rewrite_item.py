@@ -6,6 +6,8 @@ import os
 from openai import OpenAI, AzureOpenAI
 from azure.identity import get_bearer_token_provider, AzureCliCredential
 import tiktoken
+from transformers import AutoTokenizer
+import time
 from template import rewrite_template
 from utils import get_item_text
 
