@@ -63,7 +63,7 @@ def sentence_embedding(hidden_state, mask, sentence_pooling_method, normlized):
 
 def run_model_embedding(model_path_or_name, max_seq_len, batch_size, prompt_path, emb_path, accelerator, args, qorp):
     model_config = AutoConfig.from_pretrained(model_path_or_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_path_or_name, use_fast=False,
+    tokenizer = AutoTokenizer.from_pretrained(model_path_or_name, use_fast=True,
         padding_side='left' if "Llama" in model_path_or_name else 'right',
         truncation_side='right',)
     if "Llama" in model_path_or_name:

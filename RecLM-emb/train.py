@@ -63,7 +63,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(
         model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,
-        use_fast=False,
+        use_fast=True,
         padding_side='left' if "Llama" in model_args.model_name_or_path else 'right',
         truncation_side='right',
     )

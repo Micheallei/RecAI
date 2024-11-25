@@ -73,7 +73,7 @@ def gen_user2item(itemid2text, itemid2title, itemid2features, args):
     max_q_len = 0
     min_q_len = 100000
     
-    max_sample_num = 30000
+    max_sample_num = 300000
     with open(args.in_seq_data, 'r') as rd:
         all_samples = rd.readlines()
     if len(all_samples) > max_sample_num:
@@ -199,7 +199,7 @@ def gen_query2item(itemid2text, itemid2title, itemid2features, args):
     with open(args.out_query2item, 'w') as f:
         for idx, cont in tqdm(enumerate(itemid2features[1:]), desc='gen_query2item', total=len(itemid2features)-1):
             #cont[:-1] if cont[-1].startswith('description: ') else cont
-            for _ in range(3):
+            for _ in range(30):
                 target_item_title = itemid2title[idx+1][1]
                 if random.random() < 0.6:
                     target_features = [itemid2title[idx+1]] + cont if random.random() < 0.5 else cont
@@ -264,9 +264,9 @@ def gen_title2item(itemid2text, itemid2title, args):
     with open(args.out_title2item, 'w') as f:
         for idx, cont in tqdm(enumerate(itemid2title[1:]), desc='gen_title2item', total=len(itemid2title)-1):
             target_item_title = cont[1]
-            for _ in range(1):
-                if random.random() < 0.6:
-                    continue
+            for _ in range(10):
+                # if random.random() < 0.6:
+                #     continue
                 query = target_item_title
                 template = random.choice(title2item_template)
 
@@ -312,10 +312,10 @@ def gen_item2item(itemid2text, itemid2title, itemid2features, args):
         for item, pos_set in tqdm(item2pos.items(), desc='gen_item2item', total=len(item2pos)):
             source_item_features = itemid2features[item]
             source_item_title = itemid2title[item][1]
-            for _ in range(1):
+            for _ in range(2):
                 for target_item in pos_set:
-                    if random.random() > 0.12:
-                        continue
+                    # if random.random() > 0.12:
+                    #     continue
                     query = text4item2item(source_item_features, source_item_title)
 
                     template = random.choice(item2item_template)
@@ -355,7 +355,7 @@ def gen_queryuser2item(itemid2text, itemid2title, itemid2features, args):
     total_q_len = 0
     max_q_len = 0
     min_q_len = 100000
-    max_sample_num = 12000
+    max_sample_num = 100000
     with open(args.in_seq_data, 'r') as rd:
         all_samples = rd.readlines()
     if len(all_samples) > max_sample_num:
@@ -454,7 +454,7 @@ def gen_misspell2item(itemid2text, itemid2title, args):
     dataset=[]
     for idx, cont in tqdm(enumerate(itemid2title[1:]), desc='gen_misspell2item', total=len(itemid2title)-1):
         target_item_title = cont[1]
-        for _ in range(2):
+        for _ in range(10):
             query = random_replace(target_item_title)
             while query == target_item_title:
                 query = random_replace(target_item_title)
@@ -489,7 +489,7 @@ def gen_vaguequery2item(itemid2text, itemid2price_date_map, args):
         price, date, next_month, last_month = cont['price'], cont['release date'], cont['next month'], cont['last month']
         if not price or not date or not next_month or not last_month:
             continue
-        for _ in range(1):
+        for _ in range(30):
             query, combine_flag, price_flag, month_flag, year_flag = vaguequery(price, date, next_month, last_month, price_date_stats)
             template = random.choice(vaguequery2item_template)
             target_item = int(idx+1)
@@ -515,7 +515,7 @@ def gen_relativequery2item(itemid2text, args):
     with open(args.out_relativequery2item, 'w') as f:
         for task, itemset in zip(['recent', 'cheap', 'expensive', 'popular'], [recent_itemset, cheap_itemset, expensive_itemset, popular_itemset]):
             for target_item in itemset:
-                for _ in range(1):
+                for _ in range(20):
                     query = random.choice(relativequery2item_template[task])
                     neg_items = []
                     while len(neg_items) < args.neg_num:
@@ -539,7 +539,7 @@ def gen_negquery2item(itemid2text, args):
     sample_names_l2 = {x: list(features2itemids[x].keys()) for x in sample_names_l1}
     count=0
     with open(args.out_negquery2item, 'w') as f:
-        for _ in tqdm(range(30000), desc='gen_negquery2item'):
+        for _ in tqdm(range(65000), desc='gen_negquery2item'):
             query, pos_set, neg_set = text4negquery(sample_names_l1, sample_names_l2, itemid2text, features2itemids)
             if len(pos_set) == 0 or len(neg_set) <= args.neg_num//2:
                 continue

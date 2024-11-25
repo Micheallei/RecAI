@@ -31,9 +31,8 @@ For more details, please refer to our paper [Aligning Language Models for Versat
 
 ### Environment
 ```bash
-conda create -n RecLM_emb python=3.10
+conda create -n RecLM_emb python=3.10.14
 conda activate RecLM_emb
-conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
 pip install -r requirements.txt
 ```
 
