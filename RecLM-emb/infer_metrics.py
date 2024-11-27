@@ -421,7 +421,8 @@ if __name__ == '__main__':
     cache_dir =  os.path.dirname(args.all_metrics_file)
     item_embedding_prompt_path = os.path.join(cache_dir, 'item_embedding_prompt.jsonl')
     item_embedding_path = os.path.join(cache_dir, 'item_embedding.pkl')
-    user_embedding_path = os.path.join(cache_dir, 'user_embedding.pkl')
+    prefix = args.user_embedding_prompt_path.split('/')[-1].split('.jsonl')[0]
+    user_embedding_path = os.path.join(cache_dir, prefix+'_user_embedding.pkl')
 
     if not os.path.exists(item_embedding_path):
         if accelerator.is_main_process:
@@ -435,11 +436,12 @@ if __name__ == '__main__':
         else:
             run_model_embedding(args.model_path_or_name, max_seq_len=args.passage_max_len, batch_size=args.per_device_eval_batch_size, prompt_path=item_embedding_prompt_path, emb_path=item_embedding_path, accelerator=accelerator, args=args, qorp='passage')
 
-    accelerator.print("infer user embedding")
-    if args.model_path_or_name in openai_model_names:
-        run_api_embedding(args.model_path_or_name, args.user_embedding_prompt_path, user_embedding_path)
-    else:
-        run_model_embedding(args.model_path_or_name, max_seq_len=args.query_max_len, batch_size=args.per_device_eval_batch_size, prompt_path=args.user_embedding_prompt_path, emb_path=user_embedding_path, accelerator=accelerator, args=args, qorp='query')
+    if not os.path.exists(user_embedding_path):
+        accelerator.print("infer user embedding")
+        if args.model_path_or_name in openai_model_names:
+            run_api_embedding(args.model_path_or_name, args.user_embedding_prompt_path, user_embedding_path)
+        else:
+            run_model_embedding(args.model_path_or_name, max_seq_len=args.query_max_len, batch_size=args.per_device_eval_batch_size, prompt_path=args.user_embedding_prompt_path, emb_path=user_embedding_path, accelerator=accelerator, args=args, qorp='query')
 
     if accelerator.is_main_process:
         gen_retrieval_result(args, item_embedding_path, user_embedding_path)

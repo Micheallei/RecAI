@@ -5,13 +5,8 @@ import pickle
 import argparse
 from tqdm import tqdm
 import random
-import pandas as pd
-import datetime
-import time
 from transformers import AutoTokenizer
-
 import torch
-import numpy as np
 
 from accelerate import Accelerator
 from accelerate.utils import set_seed
@@ -44,13 +39,20 @@ def gen_retrieval_result(args, item_embedding_path, user_embedding_path, itemid2
 
     item_embeddings = torch.tensor(pickle.load(open(item_embedding_path, "rb")))
     user_embeddings = torch.tensor(pickle.load(open(user_embedding_path, "rb")))
+    # user_embeddings1 = torch.tensor(pickle.load(open(xx, "rb")))
+    # user_embeddings2 = torch.tensor(pickle.load(open(xx, "rb")))
+    # user_embeddings = torch.cat([user_embeddings1, user_embeddings2], 0)
     print("shape of item embeddings: ", item_embeddings.shape)
     print("shape of user embeddings: ", user_embeddings.shape)
 
     scores = torch.softmax(torch.matmul(user_embeddings, item_embeddings.T), -1).squeeze()
+    del item_embeddings
+    del user_embeddings
+    # del user_embeddings1
+    # del user_embeddings2
     targets = []
     all_data = []
-    for idx, line in enumerate(open(args.user_embedding_prompt_path)):
+    for idx, line in tqdm(enumerate(open(args.user_embedding_prompt_path)), desc='load user embedding prompt'):
         data = json.loads(line)
         all_data.append(data)
         targets.append(data['item_id'])
@@ -66,7 +68,7 @@ def gen_retrieval_result(args, item_embedding_path, user_embedding_path, itemid2
     # b=pickle.load(open(os.path.dirname(args.user_embedding_prompt_path)+"/selected_indices.pkl", "rb"))
 
     with open(args.answer_file+'.jsonl', "w", encoding='utf-8') as fd, open(args.answer_file+'_rewrite.jsonl', "w", encoding='utf-8') as fd2:
-        for idx in selected_indices:
+        for idx in tqdm(selected_indices, desc='generate answer file'):
             ground_set = set(all_data[idx]['all_history'])
             neg_items = []
             while len(neg_items) < 7:
@@ -200,7 +202,7 @@ if __name__ == '__main__':
                 for line in candidate_query:
                     fd.write(json.dumps(line)+'\n')
 
-            accelerator.wait_for_everyone()
+        accelerator.wait_for_everyone()
 
     if not os.path.exists(user_embedding_path):
         accelerator.print("infer user embedding")
