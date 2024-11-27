@@ -1,11 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-RAW_DATA_DIR="$HOME/RecLM-emb/data/steam/raw_data"
-EXE_DIR="$HOME/RecLM-emb"
+RAW_DATA_DIR="$HOME/RecAI/RecLM-emb/data/steam/raw_data"
+EXE_DIR="$HOME/RecAI/RecLM-emb"
 TRAIN_FLAG="data/steam/train"
 OUTPUT_FLAG="data/steam/test"
 
+vllm_model_name="gpt-4o"
 model_path_or_name="intfloat/e5-large-v2"
 max_samples_per_task=50000
 
@@ -53,7 +54,7 @@ else
 
     echo "generate gpt_response_file"
 
-    python preprocess/gpt_api/api.py --input_file $gpt_query_file'.csv' --output_file $gpt_response_file'.csv' 
+    python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $gpt_query_file'.csv' --response_file $gpt_response_file'.csv' 
 fi
 
 echo "generate gpt_data_file"

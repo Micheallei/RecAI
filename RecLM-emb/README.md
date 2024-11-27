@@ -36,15 +36,14 @@ conda activate RecLM_emb
 pip install -r requirements.txt
 ```
 
-### Set OpenAI API Environment
-If you want to use OpenAI API, you need to firstly run the following scripts in your console. If it is not Azure OpenAI API (OPENAI_API_TYPE is not "azure"), you only need to specify OPENAI_API_KEY and MODEL.
+### Set VLLM API Environment
+If you want to use OpenAI API, you need to firstly run the following scripts in your console. If it is not Azure OpenAI API (OPENAI_API_TYPE is not "azure"), you only need to specify OPENAI_API_KEY and OPENAI_API_BASE.
 
 ```bash
 export OPENAI_API_KEY=xxx;
 export OPENAI_API_BASE=https://xxx.openai.azure.com/;
 export OPENAI_API_VERSION=2023-03-15-preview;
 export OPENAI_API_TYPE=azure;
-export MODEL=xxx;
 ```
 
 We also support AzureCliCredential login:
@@ -52,7 +51,12 @@ We also support AzureCliCredential login:
 az login
 export OPENAI_API_BASE=https://xxx.openai.azure.com/;
 export OPENAI_API_VERSION=2023-03-15-preview;
-export MODEL=xxx;
+```
+
+If you want to use open-source LLMs (such as Llama3.1, Qwen2.5, etc.), please refer to `shell/vllm_serve.sh` to firstly run the corresponding model on your machine, and then run the following script:
+```bash
+export OPENAI_API_KEY='token-abc123';
+export OPENAI_API_BASE='http://localhost:8001/v1';
 ```
 
 ### Prepare your dataset
@@ -90,6 +94,8 @@ This file contains the sequence of user-item interactions. Each line is a space-
 The Steam dataset used in our paper is a simple combination of https://cseweb.ucsd.edu/~jmcauley/datasets.html#steam_data, https://github.com/kang205/SASRec/blob/master/data/Steam.txt and https://www.kaggle.com/datasets/trolukovich/steam-games-complete-dataset. Fortunately, a [volunteer](https://github.com/Micheallei) has gone through the data preprocess and put a copy in https://drive.google.com/drive/folders/1XhC7mybUOXDUrWyOMEvF7GP6AL676rWi?usp=sharing for reproducing experiments. Please unzip it to the ./data/ folder.
 
 Next, you can follow the scripts to create training and testing datasets.
+
+Note: Before running, please check `data_pipeline.sh` line 5-11 and `test_data_pipeline.sh` line 4-11 to make sure the parameters match your environment. `vllm_model_name` should be the LLM name you used in the [Set VLLM API Environment](#set-vllm-api-environment) section.
 
 ```bash
 bash shell/data_pipeline.sh

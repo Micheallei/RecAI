@@ -34,6 +34,9 @@ def parse_args():
         "--out_user2item", type=str, help=""
     )
     parser.add_argument(
+        "--out_unorder_user2item", type=str, help=""
+    )
+    parser.add_argument(
         "--out_query2item", type=str, help=""
     )
     parser.add_argument(
@@ -155,6 +158,78 @@ def gen_user2item(itemid2text, itemid2title, itemid2features, args):
                 f.write(json.dumps(output) + '\n')
                 count += 1
     print('gen_user2item total samples: ', count)
+    print('avg q len: ', total_q_len/count)
+    print('max q len: ', max_q_len)
+    print('min q len: ', min_q_len)
+
+def gen_unorder_user2item(itemid2text, itemid2title, itemid2features, args):
+    count=0
+    total_q_len = 0
+    max_q_len = 0
+    min_q_len = 100000
+    
+    max_sample_num = 250000
+    with open(args.in_seq_data, 'r') as rd:
+        all_samples = rd.readlines()
+    if len(all_samples) > max_sample_num:
+        all_samples = random.sample(all_samples, max_sample_num)
+        
+    with open(args.out_unorder_user2item, 'w') as f:
+        for line in tqdm(all_samples, desc='gen_unorder_user2item', total=len(all_samples)):
+            userid, itemids = line.strip().split(' ', 1)
+            itemids = itemids.split(' ')
+            ground_set = set([int(x) for x in itemids])
+            
+            select_prob = 2.0 / (len(itemids) - 1) ## for each users, we sample about 2 data samples
+            for target_index in range(0, len(itemids)-1):
+                if random.random() > select_prob:
+                    continue
+                query_items = [x for x in itemids[:-1] if x!=itemids[target_index]]
+                query_items = random.sample(query_items, min(20, len(query_items))) # truncate to 20
+                if random.random() < 0.5:
+                    template = "{}"
+                else:
+                    template = random.choice(user2item_template)
+
+                query = ''
+                has_prefix = False #if random.random() < 0.5 else True
+                #if random.random() >= 0.2:
+                for x in query_items:
+                    if has_prefix:
+                        query += 'title: ' + itemid2title[int(x)][1] + ', '
+                    else:
+                        query += itemid2title[int(x)][1] + ', '
+
+                query = query.strip().strip(',')
+
+                template_length = len(tokenizer.tokenize(template))
+                tokens = tokenizer.tokenize(query)[:args.max_seq_len-template_length]
+                truncated_query = tokenizer.convert_tokens_to_string(tokens).strip().strip(',')
+
+                query = template.format(truncated_query)
+
+                q_len = template_length + len(tokens)
+                total_q_len += q_len
+                max_q_len = max(max_q_len, q_len)
+                min_q_len = min(min_q_len, q_len)
+
+                target_item = int(itemids[target_index])
+                neg_items = []
+                while len(neg_items) < args.neg_num:
+                    neg_item = random.randint(1, len(itemid2title)-1)
+                    if neg_item not in ground_set:
+                        neg_items.append(neg_item)
+                output = {
+                    'user_id': userid,
+                    'item_id': target_item,
+                    'neg_ids': neg_items,
+                    'query': query,
+                    'pos': [itemid2text[target_item]],
+                    'neg': [itemid2text[x] for x in neg_items]
+                }
+                f.write(json.dumps(output) + '\n')
+                count += 1
+    print('gen_unorder_user2item total samples: ', count)
     print('avg q len: ', total_q_len/count)
     print('max q len: ', max_q_len)
     print('min q len: ', min_q_len)
@@ -574,6 +649,7 @@ if __name__ == "__main__":
     gen_vaguequery2item(itemid2text, itemid2price_date_map, args)
     gen_relativequery2item(itemid2text, args)
     gen_negquery2item(itemid2text, args)
+    gen_unorder_user2item(itemid2text, itemid2title, itemid2features, args)
     
     if args.in_search2item and os.path.exists(args.in_search2item):
         titleid2idx = load_titleid_2_index(args.in_meta_data)
