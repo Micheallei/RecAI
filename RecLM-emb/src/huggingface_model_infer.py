@@ -61,28 +61,34 @@ def sentence_embedding(hidden_state, mask, sentence_pooling_method, normlized):
         sentence_embeddings = torch.nn.functional.normalize(sentence_embeddings, p=2, dim=1)
     return sentence_embeddings
 
-def run_model_embedding(model_path_or_name, max_seq_len, batch_size, prompt_path, emb_path, accelerator, args, qorp):
+def run_model_embedding(model_path_or_name, max_seq_len, batch_size, prompt_path, emb_path, accelerator, args, qorp, sentence_pooling_method=None, normlized=None, has_template=None, peft_model_name=None, torch_dtype=None):
+    sentence_pooling_method = args.sentence_pooling_method if sentence_pooling_method is None else sentence_pooling_method
+    normlized = args.normlized if normlized is None else normlized
+    has_template = args.has_template if has_template is None else has_template
+    peft_model_name = args.peft_model_name if peft_model_name is None else peft_model_name
+    torch_dtype = args.torch_dtype if torch_dtype is None else torch_dtype
+    
     model_config = AutoConfig.from_pretrained(model_path_or_name)
     tokenizer = AutoTokenizer.from_pretrained(model_path_or_name, use_fast=True,
         padding_side='left' if "Llama" in model_path_or_name else 'right',
         truncation_side='right',)
     if "Llama" in model_path_or_name:
         tokenizer.pad_token = tokenizer.unk_token
-    torch_dtype = (
-            args.torch_dtype
-            if args.torch_dtype in ["auto", None]
-            else getattr(torch, args.torch_dtype)
+    f_torch_dtype = (
+            torch_dtype
+            if torch_dtype in ["auto", None]
+            else getattr(torch, torch_dtype)
         )
-    model = AutoModel.from_pretrained(model_path_or_name, config=model_config, torch_dtype=torch_dtype)
-    if args.peft_model_name:
-        model = PeftModel.from_pretrained(model, args.peft_model_name)
+    model = AutoModel.from_pretrained(model_path_or_name, config=model_config, torch_dtype=f_torch_dtype)
+    if peft_model_name:
+        model = PeftModel.from_pretrained(model, peft_model_name)
         # model = model.merge_and_unload()
 
     accelerator.print(f'loading file {prompt_path}')
     test_data = pd.read_json(prompt_path, lines=True)
     test_data = test_data['text'].tolist()
 
-    test_dataset = EmbDataset(test_data, tokenizer, max_seq_len, args.has_template, qorp)
+    test_dataset = EmbDataset(test_data, tokenizer, max_seq_len, has_template, qorp)
     dataloader = DataLoader(test_dataset, batch_size=batch_size, num_workers=0, collate_fn=InferCollator(tokenizer, max_length=max_seq_len, truncation=True, add_eos="Llama" in model_path_or_name))
     model, dataloader = accelerator.prepare(model, dataloader)
     model.eval()
@@ -94,7 +100,7 @@ def run_model_embedding(model_path_or_name, max_seq_len, batch_size, prompt_path
         for data in dataloader:
             model_output = model(**data, return_dict=True)
             # Perform pooling and normalization
-            sentence_embeddings = sentence_embedding(model_output.last_hidden_state, data['attention_mask'], args.sentence_pooling_method, args.normlized)
+            sentence_embeddings = sentence_embedding(model_output.last_hidden_state, data['attention_mask'], sentence_pooling_method, normlized)
             
             sentence_embeddings = accelerator.gather_for_metrics(sentence_embeddings).tolist()
             result_lists.extend(sentence_embeddings)
