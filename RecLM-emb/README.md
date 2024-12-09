@@ -117,6 +117,19 @@ bash shell/run_multi_node.sh (node rank, such as 0 or 1) (IP) (port number + 1)
 
 ### Inference
 
+#### For Enhanced Generalization Ability
+Using a straightforward model integration approach, the embedding model trained on in-domain data demonstrates both strong in-domain retrieval performance and robust general-purpose embedding capabilities.
+
+```bash
+bash shell/lm_cocktail.sh
+```
+
+You can evaluate the general-purpose embedding capabilities of your models using the [MTEB benchmark](https://github.com/embeddings-benchmark/mteb).
+
+```bash
+bash shell/eval_mteb.sh
+```
+
 #### Inference on test set
 You can run the following script to quantitatively evaluate the performance of your finetuned models on embedding-based item retrieval.
 
