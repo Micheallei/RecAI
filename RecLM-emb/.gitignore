@@ -11,3 +11,4 @@ output/
 output_*/
 
 gradio_cached_examples/
+.gradio/

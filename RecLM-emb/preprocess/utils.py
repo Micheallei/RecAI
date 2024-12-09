@@ -495,3 +495,49 @@ def text4negquery(sample_names_l1, sample_names_l2, itemid2text, features2itemid
             pos_set.difference_update(features2itemids[key][v])
     query = query.strip().strip(',')
     return query, pos_set, neg_set
+
+def get_model(args):
+    from openai import OpenAI, AzureOpenAI
+    from azure.identity import get_bearer_token_provider, AzureCliCredential
+    import tiktoken
+    api_key = os.environ.get('OPENAI_API_KEY') if os.environ.get('OPENAI_API_KEY') else None
+    api_base =  os.environ.get('OPENAI_API_BASE') if os.environ.get('OPENAI_API_BASE') else None
+    api_type = os.environ.get('OPENAI_API_TYPE') if os.environ.get('OPENAI_API_TYPE') else None
+    api_version =  os.environ.get('OPENAI_API_VERSION') if os.environ.get('OPENAI_API_VERSION') else None
+
+    if api_key:
+        if api_type == "azure":
+            client = AzureOpenAI(
+                api_key=api_key,
+                api_version=api_version,
+                azure_endpoint=api_base,
+            )
+        else:
+            client = OpenAI(  
+                api_key=api_key,
+                base_url=api_base,
+            )
+    else:
+        credential = AzureCliCredential()    
+
+        token_provider = get_bearer_token_provider(
+            credential,
+            "https://cognitiveservices.azure.com/.default"
+        )
+
+        client = AzureOpenAI(
+            azure_endpoint=api_base,
+            azure_ad_token_provider=token_provider,
+            api_version=api_version,
+            max_retries=5,
+        )
+
+    if args.model_name_or_path.startswith("gpt-3"):
+        tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    elif args.model_name_or_path.startswith("gpt-4o"):
+        tokenizer = tiktoken.encoding_for_model("gpt-4o")
+    elif args.model_name_or_path.startswith("gpt-4"):
+        tokenizer = tiktoken.encoding_for_model("gpt-4")
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, use_fast=True)
+    return client, tokenizer

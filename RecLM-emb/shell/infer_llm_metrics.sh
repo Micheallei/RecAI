@@ -1,8 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-RAW_DATA_DIR=$HOME/RecLM-emb/data/steam/raw_data
-EXE_DIR=$HOME/RecLM-emb
+RAW_DATA_DIR=$HOME/RecAI/RecLM-emb/data/steam/raw_data
+EXE_DIR=$HOME/RecAI/RecLM-emb
 TEST_DATA_DIR=$EXE_DIR/data/steam/test
 PEFT_MODEL_NAME=castorini/repllama-v1-7b-lora-passage
 MODEL_PATH_OR_NAME=meta-llama/Llama-2-7b-hf

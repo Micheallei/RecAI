@@ -1,8 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-RAW_DATA_DIR=$HOME/RecLM-emb/data/steam/raw_data
-EXE_DIR=$HOME/RecLM-emb
+RAW_DATA_DIR=$HOME/RecAI/RecLM-emb/data/steam/raw_data
+EXE_DIR=$HOME/RecAI/RecLM-emb
 
 cd $EXE_DIR
 

@@ -7,10 +7,13 @@ EXE_DIR="$HOME/RecAI/RecLM-emb"
 OUTPUT_FLAG="data/steam/train"
 
 vllm_model_name="gpt-4o"
+# export OPENAI_API_VERSION="xxx"
+# export OPENAI_API_BASE="xxx"
+
 neg_num=7
 model_path_or_name="intfloat/e5-large-v2"
 
-in_seq_data="$RAW_DATA_DIR/sequential_data.txt "
+in_seq_data="$RAW_DATA_DIR/sequential_data.txt"
 in_meta_data="$RAW_DATA_DIR/metadata.json"
 # in_search2item="$RAW_DATA_DIR/gpt4_item_info_search/response_gpt4_search_item.jsonl"
 
@@ -29,6 +32,7 @@ out_negquery2item="$EXE_DIR/$OUTPUT_FLAG/negquery2item.jsonl"
 out_u2i_file="$EXE_DIR/$OUTPUT_FLAG/gpt4/u2i_gpt4.jsonl"
 out_q2i_file="$EXE_DIR/$OUTPUT_FLAG/gpt4/q2i_gpt4.jsonl"
 out_q2i_misspell_file="$EXE_DIR/$OUTPUT_FLAG/gpt4/q2i_misspell_gpt4.jsonl"
+out_completion_file="$EXE_DIR/$OUTPUT_FLAG/gpt4/title_completion_gpt4.jsonl"
 gpt_query_file="$EXE_DIR/$OUTPUT_FLAG/gpt4/query_gpt4"
 gpt_response_file="$EXE_DIR/$OUTPUT_FLAG/gpt4/response_gpt4"
 out_gpt="$EXE_DIR/$OUTPUT_FLAG/gpt4_data.jsonl"
@@ -50,7 +54,7 @@ else
     echo "generate gpt_query_file"
     python preprocess/genera_query_file.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
         --out_u2i_file $out_u2i_file --out_q2i_file $out_q2i_file --out_q2i_misspell_file $out_q2i_misspell_file \
-        --out_query_file $gpt_query_file
+        --out_completion_file $out_completion_file --out_query_file $gpt_query_file 
 
     echo "generate gpt_response_file"
 
@@ -59,7 +63,7 @@ fi
 
 echo "generate gpt_data_file"
 python preprocess/merge.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
-    --in_u2i $out_u2i_file --in_q2i $out_q2i_file --in_q2i_misspell $out_q2i_misspell_file \
+    --in_u2i $out_u2i_file --in_q2i $out_q2i_file --in_q2i_misspell $out_q2i_misspell_file --in_completion_file $out_completion_file \
     --gpt_path $gpt_response_file --out_gpt $out_gpt --neg_num $neg_num
 
 
@@ -78,7 +82,7 @@ python preprocess/data_process_v2.py --in_seq_data $in_seq_data --in_meta_data $
     --out_conv $out_conv --out_gpt_conv $out_gpt_conv --out_user_sum $out_user_sum --out_gpt_user_sum $out_gpt_user_sum \
     --out_query $out_query --out_gpt_query $out_gpt_query --out_neg_query $out_neg_query --out_gpt_neg_query $out_gpt_neg_query
 
-python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_conv'.csv' --response_file $out_gpt_conv'_response.csv' 
+# python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_conv'.csv' --response_file $out_gpt_conv'_response.csv' 
 python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_user_sum'.csv' --response_file $out_gpt_user_sum'_response.csv'
 python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_query'.csv' --response_file $out_gpt_query'_response.csv'
 python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_neg_query'.csv' --response_file $out_gpt_neg_query'_response.csv'
@@ -87,3 +91,7 @@ python preprocess/merge_v2.py --in_seq_data $in_seq_data --in_meta_data $in_meta
     --out_conv $out_conv --out_gpt_conv $out_gpt_conv'_response.csv' --out_user_sum $out_user_sum --out_gpt_user_sum $out_gpt_user_sum'_response.csv' \
     --out_query $out_query --out_gpt_query $out_gpt_query'_response.csv' --out_neg_query $out_neg_query --out_gpt_neg_query $out_gpt_neg_query'_response.csv' \
     --out_new_gpt $out_gpt_v2 --neg_num $neg_num
+
+python preprocess/resample_by_item_freq.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
+    --candidate_files $out_misspell2item,$out_negquery2item,$out_query2item,$out_relativequery2item,$out_title2item,$out_vaguequery2item,$out_item2item,$out_gpt,$out_gpt_v2 \
+    --output_file $EXE_DIR/$OUTPUT_FLAG/resample_by_item_freq.jsonl \

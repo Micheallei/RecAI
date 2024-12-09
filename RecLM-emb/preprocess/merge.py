@@ -32,6 +32,9 @@ def parse_args():
         "--in_q2i_misspell", type=str, help=""
     )
     parser.add_argument(
+        "--in_completion_file", type=str, help=""
+    )
+    parser.add_argument(
         "--gpt_path", type=str, help=""
     )
     parser.add_argument(
@@ -157,6 +160,33 @@ def merge_and_sample(itemid2text, itemid2title, itemid2features, args):
                 w.write(json.dumps(output) + '\n')
                 count+=1
         print("gpt_querysummary count: ", count)
+
+        count = 0
+        with open(args.in_completion_file, 'r') as f:
+            for line in tqdm(f):
+                line = json.loads(line)
+                target_item = int(line['item_id'])
+                
+                query = query_profile.loc[idx, 'target']
+                query = query.split('#SEP#')
+                for q in query:
+                    if q.strip()=='':
+                        continue
+                    neg_items = []
+                    while len(neg_items) < args.neg_num:
+                        neg_item = random.randint(1, len(itemid2title)-1)
+                        if neg_item != target_item and itemid2title[target_item][1]!=itemid2title[neg_item][1] and q.strip().lower() not in itemid2title[neg_item][1].strip().lower() and itemid2title[neg_item][1].strip().lower() not in q.strip().lower():
+                            neg_items.append(neg_item)
+                    output = {
+                        'query': q,
+                        'pos': [itemid2text[target_item]],
+                        'neg': [itemid2text[x] for x in neg_items]
+                    }
+                    w.write(json.dumps(output) + '\n')
+                    count+=1
+                idx += 1
+        print("completion count: ", count)
+        print('idx: ', idx)
 
     
 if __name__ == "__main__":

@@ -34,7 +34,7 @@ def get_preference_ranks_large(scores, preferred_items, chunk_size=100000):
     
     return ranks
 
-def gen_retrieval_result(args, item_embedding_path, user_embedding_path, itemid2text, itemid2rewrite_text):
+def gen_retrieval_result(args, item_embedding_path, user_embedding_path, itemid2text):
     os.makedirs(os.path.dirname(args.answer_file), exist_ok=True)
 
     item_embeddings = torch.tensor(pickle.load(open(item_embedding_path, "rb")))
@@ -61,13 +61,13 @@ def gen_retrieval_result(args, item_embedding_path, user_embedding_path, itemid2
 
     ranks = get_preference_ranks_large(scores, targets) 
     sorted_ranks, sorted_indices = torch.sort(ranks, descending=True)
-    selected_indices = sorted_indices[:200000].tolist()
+    selected_indices = sorted_indices[:args.n_samples].tolist()
     pickle.dump(ranks, open(os.path.dirname(args.user_embedding_prompt_path)+"/ranks.pkl", "wb"))
     pickle.dump(selected_indices, open(os.path.dirname(args.user_embedding_prompt_path)+"/selected_indices.pkl", "wb"))
     # a=pickle.load(open(os.path.dirname(args.user_embedding_prompt_path)+"/ranks.pkl", "rb"))
     # b=pickle.load(open(os.path.dirname(args.user_embedding_prompt_path)+"/selected_indices.pkl", "rb"))
 
-    with open(args.answer_file+'.jsonl', "w", encoding='utf-8') as fd, open(args.answer_file+'_rewrite.jsonl', "w", encoding='utf-8') as fd2:
+    with open(args.answer_file, "w", encoding='utf-8') as fd:
         for idx in tqdm(selected_indices, desc='generate answer file'):
             ground_set = set(all_data[idx]['all_history'])
             neg_items = []
@@ -84,9 +84,6 @@ def gen_retrieval_result(args, item_embedding_path, user_embedding_path, itemid2
                 'neg': [itemid2text[x] for x in neg_items],
             }
             fd.write(json.dumps(line)+'\n')
-            line['pos'] = [itemid2rewrite_text[all_data[idx]['item_id']]]
-            line['neg'] = [itemid2rewrite_text[x] for x in neg_items]
-            fd2.write(json.dumps(line)+'\n')
     
     
 
@@ -137,6 +134,9 @@ def parse_args():
     parser.add_argument(
         "--torch_dtype", type=str, default=None, help="", choices=["auto", "bfloat16", "float16", "float32"]
     )
+    parser.add_argument(
+        "--n_samples", type=int, default=150000, help="select n hard samples"
+    )
     args = parser.parse_args()
     return args
 
@@ -163,7 +163,7 @@ if __name__ == '__main__':
         run_model_embedding(args.model_path_or_name, max_seq_len=args.passage_max_len, batch_size=args.per_device_eval_batch_size, prompt_path=item_embedding_prompt_path, emb_path=item_embedding_path, accelerator=accelerator, args=args, qorp='passage')
 
 
-    itemid2text, itemid2title, itemid2features, itemid2price_date_map, itemid2rewrite_text = get_item_text(args.in_meta_data)
+    itemid2text, itemid2title, itemid2features, itemid2price_date_map = get_item_text(args.in_meta_data)
 
     if not os.path.exists(args.user_embedding_prompt_path):
         if accelerator.is_main_process:
@@ -178,10 +178,10 @@ if __name__ == '__main__':
                 for idx, line in tqdm(enumerate(rd), desc='generate user_embedding_prompt_path'):
                     userid, itemids = line.strip().split(' ', 1)
                     itemids = itemids.split(' ')
-                    for i, itemid in enumerate(itemids[1:-1]):
+                    for i, itemid in enumerate(itemids[2:-1]):
                         if (int(userid), int(itemid)) not in exist_user_item_pairs:
-                            cand = {'user_id': int(userid), 'item_id': int(itemid), 'history': [int(x) for x in itemids[:i+1]], 'all_history': [int(x) for x in itemids]}
-                            query_items = itemids[:i+1][::-1]
+                            cand = {'user_id': int(userid), 'item_id': int(itemid), 'history': [int(x) for x in itemids[:i+2]], 'all_history': [int(x) for x in itemids]}
+                            query_items = itemids[:i+2][::-1]
                             query_items = query_items[:20]
                             if random.random() < 0.5:
                                 template = "{}"
@@ -209,4 +209,4 @@ if __name__ == '__main__':
         run_model_embedding(args.model_path_or_name, max_seq_len=args.query_max_len, batch_size=args.per_device_eval_batch_size, prompt_path=args.user_embedding_prompt_path, emb_path=user_embedding_path, accelerator=accelerator, args=args, qorp='query')
 
     if accelerator.is_main_process:
-        gen_retrieval_result(args, item_embedding_path, user_embedding_path, itemid2text, itemid2rewrite_text)
+        gen_retrieval_result(args, item_embedding_path, user_embedding_path, itemid2text)

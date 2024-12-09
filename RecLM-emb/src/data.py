@@ -9,6 +9,7 @@ import random
 from dataclasses import dataclass
 from typing import List, Tuple, Union
 import torch
+import json
 
 import datasets
 from torch.utils.data import Dataset
@@ -17,6 +18,18 @@ from transformers import PreTrainedTokenizer, BatchEncoding
 
 from .arguments import DataArguments
 
+def process_jsonl(file_path): # Dealing with inconsistent fields in each line of the jsonl file
+    remove_columns = ['user_id', 'item_id', 'neg_ids', 'pos_id']
+    processed_data = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            record = json.loads(line)
+            for column in remove_columns:
+                record.pop(column, None)
+            processed_data.append(record)
+    dataset = datasets.Dataset.from_list(processed_data)
+    print(dataset)
+    return dataset
 
 class TrainDatasetForEmbedding(Dataset):
     def __init__(
@@ -27,8 +40,12 @@ class TrainDatasetForEmbedding(Dataset):
         if os.path.isdir(args.train_data):
             train_datasets = []
             for file in os.listdir(args.train_data):
-                temp_dataset = datasets.load_dataset('json', data_files=os.path.join(args.train_data, file),
-                                                     split='train', cache_dir=args.data_cache_dir)
+                try:
+                    temp_dataset = datasets.load_dataset('json', data_files=os.path.join(args.train_data, file),
+                                                        split='train', cache_dir=args.data_cache_dir)
+                except:
+                    temp_dataset = process_jsonl(os.path.join(args.train_data, file))
+
                 if len(temp_dataset) > args.max_example_num_per_dataset:
                     temp_dataset = temp_dataset.select(
                         random.sample(list(range(len(temp_dataset))), args.max_example_num_per_dataset))
@@ -41,8 +58,11 @@ class TrainDatasetForEmbedding(Dataset):
         elif len(args.train_data.split(',')) > 1:
             train_datasets = []
             for file in args.train_data.split(','):
-                temp_dataset = datasets.load_dataset('json', data_files=file, split='train',
-                                                     cache_dir=args.data_cache_dir)
+                try:
+                    temp_dataset = datasets.load_dataset('json', data_files=file, split='train',
+                                                        cache_dir=args.data_cache_dir)
+                except:
+                    temp_dataset = process_jsonl(file)
                 if len(temp_dataset) > args.max_example_num_per_dataset:
                     temp_dataset = temp_dataset.select(
                         random.sample(list(range(len(temp_dataset))), args.max_example_num_per_dataset))
@@ -53,8 +73,11 @@ class TrainDatasetForEmbedding(Dataset):
                 train_datasets.append(temp_dataset)
             self.dataset = datasets.concatenate_datasets(train_datasets)
         else:
-            self.dataset = datasets.load_dataset('json', data_files=args.train_data, split='train',
-                                                 cache_dir=args.data_cache_dir)
+            try:
+                self.dataset = datasets.load_dataset('json', data_files=args.train_data, split='train',
+                                                    cache_dir=args.data_cache_dir)
+            except:
+                self.dataset = process_jsonl(args.train_data)
         ## shuffle self.dataset 
         self.dataset = self.dataset.shuffle()
         

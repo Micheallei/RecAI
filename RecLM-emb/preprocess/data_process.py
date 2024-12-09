@@ -90,7 +90,7 @@ def gen_user2item(itemid2text, itemid2title, itemid2features, args):
             ground_set = set([int(x) for x in itemids])
             
             select_prob = 2.0 / (len(itemids) - 1) ## for each users, we sample about 2 data samples
-            for target_index in range(1, len(itemids)-1):
+            for target_index in range(2, len(itemids)-1):
                 if random.random() > select_prob:
                     continue
                 query_items = itemids[:target_index][::-1]
@@ -339,11 +339,14 @@ def gen_title2item(itemid2text, itemid2title, args):
     with open(args.out_title2item, 'w') as f:
         for idx, cont in tqdm(enumerate(itemid2title[1:]), desc='gen_title2item', total=len(itemid2title)-1):
             target_item_title = cont[1]
-            for _ in range(10):
+            for _ in range(25):
                 # if random.random() < 0.6:
                 #     continue
                 query = target_item_title
-                template = random.choice(title2item_template)
+                if random.random() < 0.5:
+                    template = "{}"
+                else:
+                    template = random.choice(title2item_template)
 
                 template_length = len(tokenizer.tokenize(template))
                 tokens = tokenizer.tokenize(query)[:args.max_seq_len-template_length]

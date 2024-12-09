@@ -6,8 +6,8 @@ EXE_DIR=$HOME/RecAI/RecLM-emb
 
 cd $EXE_DIR
 
-export OPENAI_API_VERSION="xxx";
-export OPENAI_API_BASE="xxx"
+# export OPENAI_API_VERSION="xxx";
+# export OPENAI_API_BASE="xxx"
 
 accelerate launch --config_file ./shell/infer_case.yaml demo.py \
     --in_meta_data $RAW_DATA_DIR/metadata.json \

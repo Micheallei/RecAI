@@ -32,6 +32,9 @@ def parse_args():
         "--out_query_file", type=str, help=""
     )
     parser.add_argument(
+        "--out_completion_file", type=str, help=""
+    )
+    parser.add_argument(
         "--task_type", type=str, default='train', choices=['train', 'test']
     )
     args = parser.parse_args()
@@ -121,6 +124,20 @@ def gen_query2item_misspell(itemid2title, args):
             #     break
     print('gen_query2item_misspell total samples: ', count)
 
+def gen_title_completion(itemid2title, args):
+    count = 0
+    with open(args.out_completion_file, 'w') as f:
+        for i, text in enumerate(itemid2title):
+            if i == 0:
+                continue
+            output = {
+                'item_id': i,
+                'query': text[1],  
+            }
+            f.write(json.dumps(output) + '\n')
+            count += 1
+    print('gen_title_completion total samples: ', count)
+
 def gen_query_file(args):
     u2i_template = "Based on a user's gaming history, create a concise user summary under 100 words, highlighting patterns and traits from past games so that it is helpful to identify preferences and predict future game choices. Randomly select a writing style from first-person, third-person, or non-narrative. Do not mention the chosen style in the summary. Do not mention the future predictions in the summary. Here is his game play history: {}"
 
@@ -132,6 +149,10 @@ def gen_query_file(args):
     Now here are the properties of the target video game: {} Please give your answer:"
 
     q2i_misspell_template = "I will give you a game title. Please rewrite the game title to imitate the spelling errors that humans may make when searching for this game. Please print 10 possible misspellings, concatenate them with '#SEP#' without order numbers and output only one string line. These 10 misspellings are required to be as diverse as possible, and each misspelling can contain one or multiple spelling errors. Here is the game title: {}. Please give your answer:"
+    
+    title_completion_template = "Write 15 realistic user search queries based on given game title. These queries should reflect how users might abbreviate or partially use the game title when searching for that game online. Ensure the queries are diverse and capture the different ways users might refer to the game. Separate each query with '#SEP#'. For example, given a game titled 'Supreme Commander 2', possible queries could be: Supreme#SEP#Commander#SEP#Supreme Commander#SEP#Supreme Commandr.\n" \
+    "Now, based on the given game title {}, generate 15 similar search queries."
+
     ## generate an empty pandas dataframe, with columns: 'question'
     df = pandas.DataFrame(columns=['question'])
     ## insert a row to the dataframe with values: 'question': 'What is the meaning of life?'
@@ -153,6 +174,13 @@ def gen_query_file(args):
             line = json.loads(line)
             query = line['query']
             df.loc[len(df)] = [q2i_misspell_template.format(query)]
+
+    with open(args.out_completion_file, 'r') as f:
+        for i, line in enumerate(f):
+            line = json.loads(line)
+            query = line['query']
+            df.loc[len(df)] = [title_completion_template.format(query)]
+
     ## save the dataframe to a csv file
     
     # split_index = len(df) // 2   
@@ -171,6 +199,7 @@ if __name__ == '__main__':
     gen_user2item(itemid2title, args)
     gen_query2item(itemid2text, args)
     gen_query2item_misspell(itemid2title, args)
+    gen_title_completion(itemid2title, args)
     gen_query_file(args)
 
 
