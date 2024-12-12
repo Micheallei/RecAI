@@ -97,7 +97,7 @@ if __name__ == '__main__':
                     raise ValueError(f'unknown file {file}')
         
         all_items = list(item2samples.keys())
-        all_weights = [item2freq[item] for item in all_items]
+        all_weights = [item2freq[item]**0.3 for item in all_items]
         cur_count = 0
         pbar = tqdm(desc=f"sample {file}", total=total_data//2)
         while True:
@@ -111,5 +111,5 @@ if __name__ == '__main__':
 
     print(f"len(results): {len(results)}")
     with open(args.output_file, 'w') as f:
-        for data in results:
+        for data in tqdm(results, desc='write'):
             f.write(json.dumps(data)+'\n')

@@ -93,5 +93,5 @@ python preprocess/merge_v2.py --in_seq_data $in_seq_data --in_meta_data $in_meta
     --out_new_gpt $out_gpt_v2 --neg_num $neg_num
 
 python preprocess/resample_by_item_freq.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
-    --candidate_files $out_misspell2item,$out_negquery2item,$out_query2item,$out_relativequery2item,$out_title2item,$out_vaguequery2item,$out_item2item,$out_gpt,$out_gpt_v2 \
+    --candidate_files $out_misspell2item,$out_negquery2item,$out_query2item,$out_title2item,$out_vaguequery2item \
     --output_file $EXE_DIR/$OUTPUT_FLAG/resample_by_item_freq.jsonl \
