@@ -18,7 +18,7 @@ transformers==4.46.3
 wandb==0.17.0
 peft==0.11.1
 multiprocess==0.70.16
-gradio==4.29.0
+gradio==5.7.1
 azure-identity==1.17.1
 tiktoken==0.7.0
 sentence_transformers==3.3.1

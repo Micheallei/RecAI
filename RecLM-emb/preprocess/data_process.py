@@ -10,7 +10,7 @@ from collections import defaultdict
 from tqdm import tqdm
 import argparse
 import os
-from template import user2item_template, query2item_template, title2item_template, item2item_template, queryuser2item_template, vaguequery2item_template, relativequery2item_template, negquery2item_template
+from template import user2item_template, unorder_user2item_template, query2item_template, title2item_template, item2item_template, queryuser2item_template, vaguequery2item_template, relativequery2item_template, negquery2item_template
 
 from utils import get_item_text, load_titleid_2_index, text4query2item, cal_item2pos, text4item2item, random_replace, vaguequery, vaguequery_neg_sample, get_item_stats, get_feature2itemid, text4negquery, get_price_date_stats
 random.seed(2023)
@@ -168,7 +168,7 @@ def gen_unorder_user2item(itemid2text, itemid2title, itemid2features, args):
     max_q_len = 0
     min_q_len = 100000
     
-    max_sample_num = 250000
+    max_sample_num = 200000
     with open(args.in_seq_data, 'r') as rd:
         all_samples = rd.readlines()
     if len(all_samples) > max_sample_num:
@@ -186,10 +186,7 @@ def gen_unorder_user2item(itemid2text, itemid2title, itemid2features, args):
                     continue
                 query_items = [x for x in itemids[:-1] if x!=itemids[target_index]]
                 query_items = random.sample(query_items, min(20, len(query_items))) # truncate to 20
-                if random.random() < 0.5:
-                    template = "{}"
-                else:
-                    template = random.choice(user2item_template)
+                template = random.choice(unorder_user2item_template)
 
                 query = ''
                 has_prefix = False #if random.random() < 0.5 else True

@@ -10,7 +10,7 @@ from collections import defaultdict
 from tqdm import tqdm
 import argparse
 import os
-from test_template import user2item_template, query2item_template, title2item_template, item2item_template, queryuser2item_template, vaguequery2item_template, relativequery2item_template, negquery2item_template
+from test_template import user2item_template, unorder_user2item_template, query2item_template, title2item_template, item2item_template, queryuser2item_template, vaguequery2item_template, relativequery2item_template, negquery2item_template
 
 from utils import get_item_text, text4query2item, cal_item2pos, text4item2item, random_replace, vaguequery, get_item_stats, get_feature2itemid, text4negquery, get_price_date_stats
 random.seed(2023)
@@ -26,6 +26,12 @@ def parse_args():
     )
     parser.add_argument(
         "--out_user2item", type=str, help=""
+    )
+    parser.add_argument(
+        "--in_unorder_user2item", type=str, help=""
+    )
+    parser.add_argument(
+        "--out_unorder_user2item", type=str, help=""
     )
     parser.add_argument(
         "--out_query2item", type=str, help=""
@@ -88,6 +94,42 @@ def gen_user2item(itemid2title, args, has_prefix=False):
 
     print('gen_user2item total samples: ', len(dataset))
     with open(args.out_user2item, "w", encoding='utf-8') as fd:
+        for d in dataset:
+            fd.write(json.dumps(d, ensure_ascii=False) + '\n')
+
+def gen_unorder_user2item(itemid2title, args, has_prefix=False):
+    with open(args.in_seq_data, 'r') as rd:
+        all_samples = rd.readlines()
+    if len(all_samples) > args.max_samples_per_task:
+        all_samples = random.sample(all_samples, args.max_samples_per_task)
+
+    train_samples = defaultdict(list)
+    with open(args.in_unorder_user2item, 'r') as rd:
+        for line in rd:
+            data = json.loads(line)
+            train_samples[int(data['user_id'])].append(int(data['item_id']))
+        
+    dataset=[]
+    for idx, line in tqdm(enumerate(all_samples), desc='gen_unorder_user2item'):
+        userid, itemids = line.strip().split(' ', 1)
+        itemids = itemids.split(' ')
+        target_id = random.choice(itemids)
+        if int(target_id) in train_samples[int(userid)]:
+            continue
+        data = {}
+        data["user_id"] = int(userid)
+        query_items = [x for x in itemids if x!=target_id]
+        query_items = random.sample(query_items, min(20, len(query_items)))
+        item_titles = ', '.join([itemid2title[int(x)][0]+itemid2title[int(x)][1] if has_prefix else itemid2title[int(x)][1] for x in query_items])
+        template = random.choice(unorder_user2item_template)
+        
+        data["text"] = template.format(item_titles)
+        data["ground_truth"] = int(target_id)
+        data["history"] = [int(x) for x in itemids if x!=target_id]
+        dataset.append(data)
+
+    print('gen_unorder_user2item total samples: ', len(dataset))
+    with open(args.out_unorder_user2item, "w", encoding='utf-8') as fd:
         for d in dataset:
             fd.write(json.dumps(d, ensure_ascii=False) + '\n')
 
@@ -321,6 +363,7 @@ if __name__ == "__main__":
             title2itemid[v[1]].append(idx)
     
     gen_user2item(itemid2title, args)
+    gen_unorder_user2item(itemid2title, args)
     gen_query2item(itemid2title, itemid2features, args)
     gen_title2item(itemid2title, title2itemid, args)
     gen_item2item(itemid2title, itemid2features, args)

@@ -108,6 +108,9 @@ bash shell/test_data_pipeline.sh
 bash shell/run_single_node.sh
 ```
 - `--nproc_per_node`: the number of GPUs on your machine
+
+Note: Training `e5-large-v2` on 4 80GB H100 GPUs, 2 million data samples takes about 24h/epoch.
+
 #### multi node
 If you have two nodes: node0 and node1 (here we use node0 as the master node), you should first run `deepspeed utils/all_reduce_bench_v2.py` to get IP and port number of the master node. Then run the following script on both nodes using the same IP and port number but different node ranks.
 
@@ -134,15 +137,15 @@ bash shell/eval_mteb.sh
 You can run the following script to quantitatively evaluate the performance of your finetuned models on embedding-based item retrieval.
 
 ```bash
-bash shell/infer_metrics.sh
+bash shell/eval_test_data.sh
 ```
 Note that for the [repllama](https://huggingface.co/castorini/repllama-v1-7b-lora-passage) model, use the following script instead.
 ```bash
-bash shell/infer_llm_metrics.sh
+bash shell/llm_eval_test_data.sh
 ```
 - `--config_file`: Indicate the code running environment. `./shell/infer_case.yaml` and `./shell/infer.yaml` are provided as references for single-gpu inference and multi-gpu inference respectively.
 
-#### Case study
+<!-- #### Case study
 You need to first prepare your query file with the suffix .jsonl (use `user_embedding_prompt_path` parameter to specify), an example is as follows:
 ```json
 {"text": "I'd like to find some shooting games that are not made for kids and not 2D platformers"}
@@ -152,7 +155,7 @@ You need to first prepare your query file with the suffix .jsonl (use `user_embe
 Then, run the following script:
 ```bash
 bash shell/infer_case.sh
-```
+``` -->
 
 #### Serving with Web GUI
 We also provide an interface for interactively entering a query to retrieve relevant items.

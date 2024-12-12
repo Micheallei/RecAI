@@ -13,6 +13,8 @@ max_samples_per_task=50000
 in_seq_data="$RAW_DATA_DIR/sequential_data.txt"
 in_meta_data="$RAW_DATA_DIR/metadata.json"
 
+in_unorder_user2item="$EXE_DIR/$TRAIN_FLAG/unorder_user2item.jsonl"
+out_unorder_user2item="$EXE_DIR/$OUTPUT_FLAG/unorder_user2item.jsonl"
 out_user2item="$EXE_DIR/$OUTPUT_FLAG/user2item.jsonl"
 out_query2item="$EXE_DIR/$OUTPUT_FLAG/query2item.jsonl"
 out_title2item="$EXE_DIR/$OUTPUT_FLAG/title2item.jsonl"
@@ -38,6 +40,7 @@ cd $EXE_DIR
 
 echo "generate test data"
 python preprocess/gen_test_data.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data --out_user2item $out_user2item \
+    --in_unorder_user2item $in_unorder_user2item --out_unorder_user2item $out_unorder_user2item \
     --out_query2item $out_query2item --out_title2item $out_title2item --out_item2item $out_item2item --out_queryuser2item $out_queryuser2item \
     --out_misspell2item $out_misspell2item --out_sparse_query2item $out_sparse_query2item --out_vaguequery2item $out_vaguequery2item \
     --out_relativequery2item $out_relativequery2item --out_negquery2item $out_negquery2item \

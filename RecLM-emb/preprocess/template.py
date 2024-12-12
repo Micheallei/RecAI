@@ -30,6 +30,41 @@ user2item_template = [
     "History interactions include: {}.",
 ]
 
+unorder_user2item_template = [
+    "I have the following no chronological histories: {}.",
+    "I have the following unordered histories: {}.",
+    "Played these games (unordered): {}. What's a good game to try for me?",
+    "Recommend an item for me based on my mixed history interactions: {}.",
+    "I have played several games before (in no particular order): {}. Can you recommend other games for me?",
+    "{} are games I have just played (shuffled). Are there any other interesting games you would recommend?",
+    "Given the following non-sequential item history {}, what games would you recommend I play?",
+    "Here are the shuffled games a user has played: {}. Could you find some games for the user?",
+    "Find a game for me based on these previous games (jumbled): {}.",
+    "Find some fun games for me based on these previous ones (jumbled): {}.",
+    "I've played these games before (not in sequence): {}. What other games should I try?",
+    "Disorganized played games list: {}. Suggest a new game for me to play.",
+    "My gaming history includes these scattered games: {}. Could you propose some games for me?",
+    "These are the games I've experienced (shuffled): {}. Offer some new recommendations.",
+    "My game history (not in order): {}. Find a suitable game for me.",
+    "Played these games (unsorted): {}. What games would you suggest for me?",
+    "Considering my previous games (in no particular order) {}, what would you recommend?",
+    "My game background includes these jumbled games: {}. Any recommendations?",
+    "Games I've played before (scattered): {}. Can you suggest games that I might like?",
+    "Played and enjoyed these non-sequential games: {}. Do you have any game suggestions?",
+    "Here's my mixed gaming history: {}. Can you suggest a new game?",
+    "Check out my random game history {}. What game do you recommend?",
+    "Non-sequential histories: {}.",
+    "Non-sequential histories: {}. Can you find some suitable games for me?",
+    "I have played these shuffled games: {}.",
+    "Enjoyed games (in no specific order): {}.",
+    "Played games (unordered): {}. Recommend a new game for me.",
+    "I've played these games (scattered): {}.",
+    "{} are games I've played no chronological order. Any recommendations?",
+    "Shuffled history interactions include: {}.",
+    "Unordered history interactions include: {}.",
+]
+
+
 query2item_template = [
     "{}",
     "I want to find some games with several features: {}.", 
