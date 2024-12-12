@@ -42,6 +42,26 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --has_template \
     --peft_model_name $PEFT_MODEL_NAME
 
+echo "infer unorder_user2item"
+accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
+    --in_seq_data $RAW_DATA_DIR/sequential_data.txt \
+    --in_meta_data $RAW_DATA_DIR/metadata.json \
+    --model_path_or_name $MODEL_PATH_OR_NAME \
+    --user_embedding_prompt_path $TEST_DATA_DIR/unorder_user2item.jsonl \
+    --answer_file $OUT_DIR/answer.jsonl \
+    --all_metrics_file $ALL_METRICS_FILE \
+    --topk "$TOPK" \
+    --seed $SEED \
+    --query_max_len $QUERY_MAX_LEN \
+    --passage_max_len $PASSAGE_MAX_LEN \
+    --per_device_eval_batch_size 16 \
+    --task_type "user2item" \
+    --sentence_pooling_method $SENTENCE_POOLING_METHOD \
+    --normlized \
+    --torch_dtype $torch_dtype \
+    --has_template \
+    --peft_model_name $PEFT_MODEL_NAME
+
 echo "infer query2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --in_seq_data $RAW_DATA_DIR/sequential_data.txt \

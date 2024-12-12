@@ -61,7 +61,7 @@ export OPENAI_API_BASE='http://localhost:8001/v1';
 
 ### Prepare your dataset
 For data preparation, you must provide the following two raw files:
-1. metadata.json  
+1. metadata.jsonl 
 This file contains the meta information of each item. Each line is a JSON object and must contain a "title" field as the natural language to represent this item. The row number corresponds to the id of the item, counting from 1.
 
     Format:

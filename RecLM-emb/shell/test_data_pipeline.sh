@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-RAW_DATA_DIR="$HOME/RecAI/RecLM-emb/data/steam/raw_data"
+RAW_DATA_DIR="/home/aiscuser/azureblob/PDP_process_v1025/k=1000000/RecLM/emb_v5"
 EXE_DIR="$HOME/RecAI/RecLM-emb"
 TRAIN_FLAG="data/steam/train"
 OUTPUT_FLAG="data/steam/test"
@@ -10,11 +10,11 @@ vllm_model_name="gpt-4o"
 model_path_or_name="intfloat/e5-large-v2"
 max_samples_per_task=50000
 
-in_seq_data="$RAW_DATA_DIR/sequential_data.txt"
-in_meta_data="$RAW_DATA_DIR/metadata.json"
+in_seq_data="$RAW_DATA_DIR/user_sequence.txt"
+in_meta_data="$RAW_DATA_DIR/item_meta_rewrite.json"
 
-in_unorder_user2item="$EXE_DIR/$TRAIN_FLAG/unorder_user2item.jsonl"
-out_unorder_user2item="$EXE_DIR/$OUTPUT_FLAG/unorder_user2item.jsonl"
+in_unorder_user2item="/home/aiscuser/RecAI/RecLM-emb/output/data/unorder_user2item_v2.jsonl"
+out_unorder_user2item="/home/aiscuser/RecAI/RecLM-emb/output/data/test_unorder_user2item.jsonl"
 out_user2item="$EXE_DIR/$OUTPUT_FLAG/user2item.jsonl"
 out_query2item="$EXE_DIR/$OUTPUT_FLAG/query2item.jsonl"
 out_title2item="$EXE_DIR/$OUTPUT_FLAG/title2item.jsonl"
@@ -46,25 +46,25 @@ python preprocess/gen_test_data.py --in_seq_data $in_seq_data --in_meta_data $in
     --out_relativequery2item $out_relativequery2item --out_negquery2item $out_negquery2item \
     --model_path_or_name $model_path_or_name --max_samples_per_task $max_samples_per_task
 
-if [[ -e $gpt_response_file'.csv' ]]; then  
-    echo "All files exist. jump to excute test_merge.py"  
-else  
-    echo "At least one file does not exist." 
-    echo "generate gpt_query_file"
-    python preprocess/genera_query_file.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
-        --out_u2i_file $out_u2i_file --out_q2i_file $out_q2i_file --out_q2i_misspell_file $out_q2i_misspell_file \
-        --out_query_file $gpt_query_file --task_type "test"
+# if [[ -e $gpt_response_file'.csv' ]]; then  
+#     echo "All files exist. jump to excute test_merge.py"  
+# else  
+#     echo "At least one file does not exist." 
+#     echo "generate gpt_query_file"
+#     python preprocess/genera_query_file.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
+#         --out_u2i_file $out_u2i_file --out_q2i_file $out_q2i_file --out_q2i_misspell_file $out_q2i_misspell_file \
+#         --out_query_file $gpt_query_file --task_type "test"
 
-    echo "generate gpt_response_file"
+#     echo "generate gpt_response_file"
 
-    python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $gpt_query_file'.csv' --response_file $gpt_response_file'.csv' 
-fi
+#     python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $gpt_query_file'.csv' --response_file $gpt_response_file'.csv' 
+# fi
 
-echo "generate gpt_data_file"
-python preprocess/test_merge.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
-    --in_u2i $out_u2i_file --in_q2i $out_q2i_file --in_q2i_misspell $out_q2i_misspell_file \
-    --gpt_path $gpt_response_file --out_gpt_summary $out_gpt_summary --out_gpt_query $out_gpt_query \
-    --out_gpt_misspell $out_gpt_misspell --out_gpt_summary_query $out_gpt_summary_query
+# echo "generate gpt_data_file"
+# python preprocess/test_merge.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
+#     --in_u2i $out_u2i_file --in_q2i $out_q2i_file --in_q2i_misspell $out_q2i_misspell_file \
+#     --gpt_path $gpt_response_file --out_gpt_summary $out_gpt_summary --out_gpt_query $out_gpt_query \
+#     --out_gpt_misspell $out_gpt_misspell --out_gpt_summary_query $out_gpt_summary_query
 
-echo "remove duplicate data"
-python preprocess/test_filter.py --train_dir $EXE_DIR/$TRAIN_FLAG --test_dir $EXE_DIR/$OUTPUT_FLAG
+# echo "remove duplicate data"
+# python preprocess/test_filter.py --train_dir $EXE_DIR/$TRAIN_FLAG --test_dir $EXE_DIR/$OUTPUT_FLAG

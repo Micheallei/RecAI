@@ -37,7 +37,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 1024 \
     --task_type "user2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 
 echo "infer unorder_user2item"
@@ -55,7 +56,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 1024 \
     --task_type "user2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer query2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -72,7 +74,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "query2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer sparse_query2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -89,7 +92,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "query2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer title2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -106,7 +110,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "title2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer item2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -123,7 +128,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "item2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer queryuser2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -140,7 +146,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 512 \
     --task_type "queryuser2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer misspell2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -157,7 +164,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "misspell2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer gpt_misspell"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -174,7 +182,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "misspell2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer gpt_summary"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -191,7 +200,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 512 \
     --task_type "user2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer gpt_summary_query"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -208,7 +218,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 512 \
     --task_type "queryuser2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer gpt_query"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -225,7 +236,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "title2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer vaguequery2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -242,7 +254,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "vaguequery2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer relativequery2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -259,7 +272,8 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "title2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
 
 echo "infer negquery2item"
 accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
@@ -276,4 +290,5 @@ accelerate launch --config_file $CONFIG_FILE infer_metrics.py \
     --per_device_eval_batch_size 128 \
     --task_type "title2item" \
     --sentence_pooling_method $SENTENCE_POOLING_METHOD \
-    --normlized
+    --normlized \
+    --has_template
