@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 
-RAW_DATA_DIR="/home/aiscuser/azureblob/PDP_process_v1025/k=1000000/RecLM/emb_v5"
+RAW_DATA_DIR="$HOME/RecAI/RecLM-emb/data/steam/raw_data"
 EXE_DIR="$HOME/RecAI/RecLM-emb"
 OUTPUT_FLAG="data/steam/train"
 
@@ -13,12 +13,12 @@ vllm_model_name="gpt-4o"
 neg_num=7
 model_path_or_name="intfloat/e5-large-v2"
 
-in_seq_data="$RAW_DATA_DIR/user_sequence.txt"
-in_meta_data="$RAW_DATA_DIR/item_meta_rewrite.json"
+in_seq_data="$RAW_DATA_DIR/sequential_data.txt"
+in_meta_data="$RAW_DATA_DIR/metadata.json"
 # in_search2item="$RAW_DATA_DIR/gpt4_item_info_search/response_gpt4_search_item.jsonl"
 
 out_user2item="$EXE_DIR/$OUTPUT_FLAG/user2item.jsonl"
-out_unorder_user2item="/home/aiscuser/RecAI/RecLM-emb/output/data/unorder_user2item_v2.jsonl"
+out_unorder_user2item="$EXE_DIR/$OUTPUT_FLAG/unorder_user2item.jsonl"
 out_query2item="$EXE_DIR/$OUTPUT_FLAG/query2item.jsonl"
 # out_search2item="$EXE_DIR/$OUTPUT_FLAG/searchquery2item.jsonl"
 out_title2item="$EXE_DIR/$OUTPUT_FLAG/title2item.jsonl"
@@ -47,51 +47,51 @@ python preprocess/data_process.py --in_seq_data $in_seq_data --in_meta_data $in_
     # --in_search2item=$in_search2item --out_search2item=$out_search2item 
 
 
-# if [[ -e $gpt_response_file'.csv' ]]; then  
-#     echo "All files exist. jump to excute merge.py"  
-# else  
-#     echo "At least one file does not exist."  
-#     echo "generate gpt_query_file"
-#     python preprocess/genera_query_file.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
-#         --out_u2i_file $out_u2i_file --out_q2i_file $out_q2i_file --out_q2i_misspell_file $out_q2i_misspell_file \
-#         --out_completion_file $out_completion_file --out_query_file $gpt_query_file 
+if [[ -e $gpt_response_file'.csv' ]]; then  
+    echo "All files exist. jump to excute merge.py"  
+else  
+    echo "At least one file does not exist."  
+    echo "generate gpt_query_file"
+    python preprocess/genera_query_file.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
+        --out_u2i_file $out_u2i_file --out_q2i_file $out_q2i_file --out_q2i_misspell_file $out_q2i_misspell_file \
+        --out_completion_file $out_completion_file --out_query_file $gpt_query_file 
 
-#     echo "generate gpt_response_file"
+    echo "generate gpt_response_file"
 
-#     python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $gpt_query_file'.csv' --response_file $gpt_response_file'.csv' 
-# fi
+    python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $gpt_query_file'.csv' --response_file $gpt_response_file'.csv' 
+fi
 
-# echo "generate gpt_data_file"
-# python preprocess/merge.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
-#     --in_u2i $out_u2i_file --in_q2i $out_q2i_file --in_q2i_misspell $out_q2i_misspell_file --in_completion_file $out_completion_file \
-#     --gpt_path $gpt_response_file --out_gpt $out_gpt --neg_num $neg_num
+echo "generate gpt_data_file"
+python preprocess/merge.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
+    --in_u2i $out_u2i_file --in_q2i $out_q2i_file --in_q2i_misspell $out_q2i_misspell_file --in_completion_file $out_completion_file \
+    --gpt_path $gpt_response_file --out_gpt $out_gpt --neg_num $neg_num
 
 
-# out_conv=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/conv_data.json
-# out_gpt_conv=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/gpt_conv_data
-# out_user_sum=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/user_sum_data.json
-# out_gpt_user_sum=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/gpt_user_sum_data
-# out_query=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/query_data.json
-# out_gpt_query=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/gpt_query_data
-# out_neg_query=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/neg_query_data.json
-# out_gpt_neg_query=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/gpt_neg_query_data
-# out_gpt_v2="$EXE_DIR/$OUTPUT_FLAG/gpt4_data_v2.jsonl"
+out_conv=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/conv_data.json
+out_gpt_conv=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/gpt_conv_data
+out_user_sum=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/user_sum_data.json
+out_gpt_user_sum=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/gpt_user_sum_data
+out_query=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/query_data.json
+out_gpt_query=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/gpt_query_data
+out_neg_query=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/neg_query_data.json
+out_gpt_neg_query=$EXE_DIR/$OUTPUT_FLAG/gpt4_v2/gpt_neg_query_data
+out_gpt_v2="$EXE_DIR/$OUTPUT_FLAG/gpt4_data_v2.jsonl"
 
-# echo "generate gpt_data_file v2"
-# python preprocess/data_process_v2.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
-#     --out_conv $out_conv --out_gpt_conv $out_gpt_conv --out_user_sum $out_user_sum --out_gpt_user_sum $out_gpt_user_sum \
-#     --out_query $out_query --out_gpt_query $out_gpt_query --out_neg_query $out_neg_query --out_gpt_neg_query $out_gpt_neg_query
+echo "generate gpt_data_file v2"
+python preprocess/data_process_v2.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
+    --out_conv $out_conv --out_gpt_conv $out_gpt_conv --out_user_sum $out_user_sum --out_gpt_user_sum $out_gpt_user_sum \
+    --out_query $out_query --out_gpt_query $out_gpt_query --out_neg_query $out_neg_query --out_gpt_neg_query $out_gpt_neg_query
 
-# # python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_conv'.csv' --response_file $out_gpt_conv'_response.csv' 
-# python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_user_sum'.csv' --response_file $out_gpt_user_sum'_response.csv'
-# python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_query'.csv' --response_file $out_gpt_query'_response.csv'
-# python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_neg_query'.csv' --response_file $out_gpt_neg_query'_response.csv'
+# python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_conv'.csv' --response_file $out_gpt_conv'_response.csv' 
+python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_user_sum'.csv' --response_file $out_gpt_user_sum'_response.csv'
+python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_query'.csv' --response_file $out_gpt_query'_response.csv'
+python preprocess/llm_api.py --model_name_or_path $vllm_model_name --query_file $out_gpt_neg_query'.csv' --response_file $out_gpt_neg_query'_response.csv'
 
-# python preprocess/merge_v2.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
-#     --out_conv $out_conv --out_gpt_conv $out_gpt_conv'_response.csv' --out_user_sum $out_user_sum --out_gpt_user_sum $out_gpt_user_sum'_response.csv' \
-#     --out_query $out_query --out_gpt_query $out_gpt_query'_response.csv' --out_neg_query $out_neg_query --out_gpt_neg_query $out_gpt_neg_query'_response.csv' \
-#     --out_new_gpt $out_gpt_v2 --neg_num $neg_num
+python preprocess/merge_v2.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
+    --out_conv $out_conv --out_gpt_conv $out_gpt_conv'_response.csv' --out_user_sum $out_user_sum --out_gpt_user_sum $out_gpt_user_sum'_response.csv' \
+    --out_query $out_query --out_gpt_query $out_gpt_query'_response.csv' --out_neg_query $out_neg_query --out_gpt_neg_query $out_gpt_neg_query'_response.csv' \
+    --out_new_gpt $out_gpt_v2 --neg_num $neg_num
 
-# python preprocess/resample_by_item_freq.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
-#     --candidate_files $out_misspell2item,$out_negquery2item,$out_query2item,$out_relativequery2item,$out_title2item,$out_vaguequery2item,$out_item2item,$out_gpt,$out_gpt_v2 \
-#     --output_file $EXE_DIR/$OUTPUT_FLAG/resample_by_item_freq.jsonl \
+python preprocess/resample_by_item_freq.py --in_seq_data $in_seq_data --in_meta_data $in_meta_data \
+    --candidate_files $out_misspell2item,$out_negquery2item,$out_query2item,$out_relativequery2item,$out_title2item,$out_vaguequery2item,$out_item2item,$out_gpt,$out_gpt_v2 \
+    --output_file $EXE_DIR/$OUTPUT_FLAG/resample_by_item_freq.jsonl \
