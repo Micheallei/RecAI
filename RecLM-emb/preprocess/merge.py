@@ -75,6 +75,7 @@ def merge_and_sample(itemid2text, itemid2title, itemid2features, args):
                     if neg_item != target_item:
                         neg_items.append(neg_item)
                 output = {
+                    'task': 'llm_u2i',
                     'query': query,
                     'pos': [itemid2text[target_item]],
                     'neg': [itemid2text[x] for x in neg_items]
@@ -101,6 +102,7 @@ def merge_and_sample(itemid2text, itemid2title, itemid2features, args):
                         if neg_item != target_item:
                             neg_items.append(neg_item)
                     output = {
+                        'task': 'llm_q2i',
                         'query': q,
                         'pos': [itemid2text[target_item]],
                         'neg': [itemid2text[x] for x in neg_items]
@@ -130,6 +132,7 @@ def merge_and_sample(itemid2text, itemid2title, itemid2features, args):
                         if neg_item != target_item and itemid2title[target_item][1]!=itemid2title[neg_item][1]:
                             neg_items.append(neg_item)
                     output = {
+                        'task': 'llm_q2i_misspell',
                         'query': q,
                         'pos': [itemid2text[target_item]],
                         'neg': [itemid2text[x] for x in neg_items]
@@ -153,6 +156,7 @@ def merge_and_sample(itemid2text, itemid2title, itemid2features, args):
                     if neg_item != target_item:
                         neg_items.append(neg_item)
                 output = {
+                    'task': 'llm_querysummary',
                     'query': query,
                     'pos': [itemid2text[target_item]],
                     'neg': [itemid2text[x] for x in neg_items]
@@ -178,6 +182,7 @@ def merge_and_sample(itemid2text, itemid2title, itemid2features, args):
                         if neg_item != target_item and itemid2title[target_item][1]!=itemid2title[neg_item][1] and q.strip().lower() not in itemid2title[neg_item][1].strip().lower() and itemid2title[neg_item][1].strip().lower() not in q.strip().lower():
                             neg_items.append(neg_item)
                     output = {
+                        'task': 'llm_completion',
                         'query': q,
                         'pos': [itemid2text[target_item]],
                         'neg': [itemid2text[x] for x in neg_items]

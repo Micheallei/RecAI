@@ -81,6 +81,7 @@ def sample_conv(args, itemid2text, out_text):
                 if neg_item != target_item:
                     neg_items.append(neg_item)
             output = {
+                'task': 'llm_conv',
                 'query': query,
                 'pos': [itemid2text[target_item]],
                 'neg': [itemid2text[x] for x in neg_items]
@@ -122,6 +123,7 @@ def sample_user_sum(args, itemid2text, out_text):
                 if neg_item not in ground_set:
                     neg_items.append(neg_item)
             output = {
+                'task': 'llm_u2i',
                 'query': query,
                 'pos': [itemid2text[target_item]],
                 'neg': [itemid2text[x] for x in neg_items]
@@ -181,6 +183,7 @@ def sample_query(args, itemid2text, itemid2features, out_text):
                     neg_items.append(neg_item)
 
             output = {
+                'task': 'llm_q2i',
                 'query': query,
                 'pos': [itemid2text[target_id]],
                 'neg': [itemid2text[x] for x in neg_items]
@@ -229,6 +232,7 @@ def sample_neg_query(args, itemid2text, out_text):
             target_item = random.sample(list(pos_set), min(2, len(pos_set)))
             neg_items = random.sample(list(neg_set), min(args.neg_num, len(neg_set)))
             output = {
+                'task': 'llm_neg_q2i',
                 'query': query,
                 'pos': [itemid2text[x] for x in target_item],
                 'neg': [itemid2text[x] for x in neg_items]

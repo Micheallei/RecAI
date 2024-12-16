@@ -71,6 +71,8 @@ if __name__ == '__main__':
         with open(file, 'r') as f:
             for line in tqdm(f, desc=f'read {file}'):
                 data = json.loads(line)
+                if 'task' in data and data['task'] in ['llm_u2i', 'llm_querysummary', 'llm_conv']:
+                    continue
                 total_data += 1
                 if infix in candidate_files_ids:
                     if isinstance(data['item_id'], list):

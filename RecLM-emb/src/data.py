@@ -19,7 +19,7 @@ from transformers import PreTrainedTokenizer, BatchEncoding
 from .arguments import DataArguments
 
 def process_jsonl(file_path): # Dealing with inconsistent fields in each line of the jsonl file
-    remove_columns = ['user_id', 'item_id', 'neg_ids', 'pos_id']
+    remove_columns = ['user_id', 'item_id', 'neg_ids', 'pos_id', 'task']
     processed_data = []
     with open(file_path, 'r', encoding='utf-8') as f:
         for line in f:
@@ -50,7 +50,7 @@ class TrainDatasetForEmbedding(Dataset):
                     temp_dataset = temp_dataset.select(
                         random.sample(list(range(len(temp_dataset))), args.max_example_num_per_dataset))
                 column_names = temp_dataset.column_names
-                remove_columns = ['user_id', 'item_id', 'neg_ids', 'pos_id']
+                remove_columns = ['user_id', 'item_id', 'neg_ids', 'pos_id', 'task']
                 remove_columns = [c for c in remove_columns if c in column_names]
                 temp_dataset = temp_dataset.remove_columns(remove_columns)
                 train_datasets.append(temp_dataset)

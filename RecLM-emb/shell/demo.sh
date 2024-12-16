@@ -10,6 +10,7 @@ cd $EXE_DIR
 # export OPENAI_API_BASE="xxx"
 
 accelerate launch --config_file ./shell/infer_case.yaml demo.py \
+    --in_seq_data $RAW_DATA_DIR/sequential_data.txt \
     --in_meta_data $RAW_DATA_DIR/metadata.json \
     --user_embedding_prompt_path $EXE_DIR/output/demo/user_embedding_prompt.jsonl \
     --model_path_or_name "xxxx" \
